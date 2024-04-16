@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Transaction</title>
+</head>
+<body>
+<h1>Send Transaction</h1>
+
+<form id="transactionForm">
+    <label for="amount">Amount:</label><br>
+    <input type="number" id="amount" name="amount"><br>
+    <label for="recipientAddress">Recipient Address:</label><br>
+    <input type="text" id="recipientAddress" name="recipientAddress"><br>
+    <input type="submit" value="Submit">
+</form>
+<script>
+    document.getElementById('transactionForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const amount = document.getElementById('amount').value;
+        const recipientAddress = document.getElementById('recipientAddress').value;
+
+        console.log('Preparing to send transaction with amount:', amount, 'and recipient address:', recipientAddress);
+
+        prepareAndSendTransaction(amount, recipientAddress);
+    });
+
+    async function prepareAndSendTransaction(amount, recipientAddress) {
+        try {
+            console.log('Sending AJAX request to /sendTransaction');
+
+
+            const response = await fetch('/sendTransaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    recipientAddress: recipientAddress
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error preparing transaction');
+            }
+
+            console.log('Received response from server:', response);
+
+            const transactionData = await response.json();
+
+            console.log('Received transaction data from server:', transactionData);
+
+            const { fromAddress, amountInWei } = transactionData;
+
+            console.log('Preparing to send transaction with MetaMask using the following parameters:', transactionData);
+
+            const ethereum = window.ethereum;
+            if (!ethereum || !ethereum.isMetaMask) {
+                throw new Error('Please install MetaMask.');
+            }
+
+            const transactionParameters = {
+                nonce: '0x00', // ignored by MetaMask
+                gasPrice: '0x09184e72a000', // customizable by user during MetaMask confirmation.
+                gas: '0x2710',  // customizable by user during MetaMask confirmation.
+                to: recipientAddress, // Required except during contract publications.
+                from: fromAddress, // must match user's active address.
+                value: amountInWei, // Only required to send ether to the recipient from the initiating external account.
+                chainId: 3 // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+            };
+
+            console.log('Sending transaction with MetaMask');
+            const txHash = await ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [transactionParameters],
+            });
+            console.log('Transaction sent successfully! Transaction hash: ' + txHash);
+        } catch (error) {
+            console.error('Error preparing and sending transaction:', error);
+        }
+    }
+</script>
+</body>
+</html>

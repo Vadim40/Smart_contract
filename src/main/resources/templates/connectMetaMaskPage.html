@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect MetaMask</title>
+</head>
+<body>
+<h1>Connect MetaMask</h1>
+<button onclick="connect()">Connect MetaMask</button>
+
+<script>
+  async function connect() {
+    if (window.ethereum) {
+      try {
+        // Запрос разрешения на доступ к аккаунту MetaMask
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        alert('MetaMask connected successfully!');
+        // Здесь можно добавить дополнительную логику после успешного подключения
+      } catch (error) {
+        console.error('Error connecting to MetaMask:', error);
+        alert('Error connecting to MetaMask. See console for details.');
+      }
+    } else {
+      alert('MetaMask not detected!');
+    }
+  }
+
+  // Функция для проверки наличия MetaMask при загрузке страницы
+  window.addEventListener('load', async () => {
+    if (window.ethereum) {
+      console.log('MetaMask detected!');
+      // Здесь вы можете добавить дополнительную логику при обнаружении MetaMask
+    } else {
+      console.log('MetaMask not detected!');
+    }
+  });
+</script>
+</body>
+</html>
