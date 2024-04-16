@@ -8,15 +8,15 @@
 <body>
 <h1>Connect MetaMask</h1>
 <button onclick="connect()">Connect MetaMask</button>
+<p id="account"></p>
 
 <script>
   async function connect() {
     if (window.ethereum) {
       try {
         // Запрос разрешения на доступ к аккаунту MetaMask
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        alert('MetaMask connected successfully!');
-        // Здесь можно добавить дополнительную логику после успешного подключения
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        document.getElementById('account').innerText = 'Connected MetaMask account: ' + accounts[0];
       } catch (error) {
         console.error('Error connecting to MetaMask:', error);
         alert('Error connecting to MetaMask. See console for details.');
