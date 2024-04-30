@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Развертывание Смарт-Контракта</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+            type="application/javascript"></script>
+</head>
+<body>
+<h1>Connect MetaMask</h1>
+<button onclick="connect()">Connect MetaMask</button>
+<p id="account"></p>
+<button id="deployButton" style="display:none;">Развернуть Контракт</button>
+<p id="contractAddress"></p>
+
+<script>
+    let provider;
+    let signer;
+
+    async function connect() {
+        if (window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                document.getElementById('account').innerText = 'Connected MetaMask account: ' + accounts[0];
+                document.getElementById('deployButton').style.display = 'block'; // Показать кнопку после подключения
+            } catch (error) {
+                console.error('Error connecting to MetaMask:', error);
+                alert('Error connecting to MetaMask. See console for details.');
+            }
+        } else {
+            alert('MetaMask not detected!');
+        }
+    }
+
+    async function deployContract() {
+        const contractABI = [{"constant":true,"inputs":[],"name":"get","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"x","type":"uint256"}],"name":"set","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}];
+        const contractBytecode ="60806040523480156100115760006000fd5b50610017565b60da806100256000396000f3fe608060405234801560105760006000fd5b506004361060365760003560e01c806360fe47b114603c5780636d4ce63c146068576036565b60006000fd5b60666004803603602081101560515760006000fd5b81019080803590602001909291905050506084565b005b606e6094565b6040518082815260200191505060405180910390f35b8060006000508190909055505b50565b6000600060005054905060a2565b9056fea265627a7a72315820103905c6c5be6770c4112d8980b4d477c592c54093e9283224fb386339553c9664736f6c63430005100032";
+
+
+        // Создание экземпляра контракта для развертывания
+        let factory = new ethers.ContractFactory(contractABI, contractBytecode, signer);
+
+        try {
+            // Развертывание контракта
+            let contract = await factory.deploy();
+            await contract.deployed();
+
+            // Вывод адреса развернутого контракта
+            document.getElementById('contractAddress').innerText = 'Contract deployed at: ' + contract.address;
+            console.log('Contract deployed at:', contract.address);
+        } catch (error) {
+            console.error('Error deploying contract:', error);
+        }
+    }
+
+    // Обработчик нажатия кнопки для развертывания контракта
+    document.getElementById('deployButton').addEventListener('click', deployContract);
+</script>
+</body>
+</html>

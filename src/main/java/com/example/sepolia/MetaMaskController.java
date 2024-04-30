@@ -50,10 +50,15 @@ public class MetaMaskController {
     }
     @GetMapping("/connectMetamask")
     public String connectMetaMask() {
-        // Здесь можно добавить код для отображения страницы, которая содержит ваш интерфейс для подключения MetaMask
-        return "connectMetaMaskPage"; // Имя представления в вашем шаблоне
+        return "connectMetaMaskPage";
+    }
+    @GetMapping("/smartcontract")
+    public String smartcontract() {
+        return "smartcontract";
     }
 
-
-
+    @GetMapping("/voting")
+    public String voting(){
+        return "voting";
+    }
 }
